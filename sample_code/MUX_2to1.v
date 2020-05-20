@@ -23,7 +23,7 @@ always@(*) begin
     if (select_i==1) begin
         data_o=data1_i;    
     end
-    else begin
+    else if (select_i==0)begin
         data_o=data0_i;
     end
 

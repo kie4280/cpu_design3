@@ -11,10 +11,11 @@ input rst_i;
 
 wire [32-1:0] instruction;
 wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4,
-              ProgramCounter_b, ProgramCounter_w, ProgramCounter_4w;
+              ProgramCounter_b, ProgramCounter_w, ProgramCounter_4w,
+              ProgramCounter_nj, ProgramCounter_j;
 wire [32-1:0] RSdata, RTdata, RDdata, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
-wire reg_write, reg_dst, alu_src1, alu_src2, branch, branch_eq;
+wire reg_write, reg_dst, alu_src1, alu_src2, branch, branch_eq, jump;
 wire[4-1:0] alu_op;
 wire sign, zero;
 wire [4-1:0] alu_ctrl;
@@ -66,7 +67,9 @@ Decoder Decoder(
     .ALUSrc_o(alu_src2),
     .RegDst_o(reg_dst),
     .Branch_o(branch),
-    .Branch_eq(branch_eq)
+    .Branch_eq(branch_eq),
+    .Jump(jump),
+    .Jump_Ctrl(jump_ctrl)
     );
 
 ALU_Ctrl AC(
@@ -74,7 +77,8 @@ ALU_Ctrl AC(
     .ALUOp_i(alu_op),//
     .ALUCtrl_o(alu_ctrl),//
     .Sign_extend_o(sign),
-    .Mux_ALU_src1(alu_src1)
+    .Mux_ALU_src1(alu_src1),
+    .Jump_R(jump_R)
     );
 
 Sign_Extend SE(
@@ -117,10 +121,31 @@ Shift_Left_Two_32 Shifter(
     .data_o(ProgramCounter_w)//
     );
 
-MUX_2to1 #(.size(32)) Mux_PC_Source(
+MUX_2to1 #(.size(32)) Mux_BranchOrNot(
     .data0_i(ProgramCounter_4),//
     .data1_i(ProgramCounter_4w),//
     .select_i((branch_eq?zero:~zero)&branch),//
+    .data_o(ProgramCounter_nj)//no jump
+    );
+
+MUX_2to1 #(.size(32)) Mux_JorJAL(
+    .data0_i({ProgramCounter_o+[31:28],5{0},instruction[20:0],2{0}}),//
+    .data1_i(jal),//
+    .select_i(jump_ctrl),//
+    .data_o(ProgramCounter_j)//jump
+    );
+
+MUX_2to1 #(.size(32)) Mux_JorJAL(
+    .data0_i(RSdata),//
+    .data1_i(ProgramCounter_j),//R type jump
+    .select_i(jump),//
+    .data_o(ProgramCounter_fj)//final jump
+    );
+
+MUX_2to1 #(.size(32)) Mux_PC_Source(
+    .data0_i(ProgramCounter_nj),//
+    .data1_i(ProgramCounter_fj),//
+    .select_i(jump||jump_R),//
     .data_o(ProgramCounter_i)//
     );
 

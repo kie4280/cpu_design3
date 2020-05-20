@@ -52,7 +52,7 @@ alu alu(
 
 //actual ALU control code
 localparam [4-1:0] AND=0, OR=1, NAND=2, NOR=3, ADDU=4, SUBU=5, SLT=6, EQUAL=7,
-                   SRA=8, SRAV=9, LUI=10, SLTU=11;
+                   SRA=8, SRAV=9, LUI=10, SLTU=11, SLL=12, SM=13;
 
 always@(*) begin
 
@@ -94,6 +94,13 @@ always@(*) begin
         SRAV: begin
             result_o = shift_src >> src1_i;
 
+        end
+        SLL: begin
+            result_o = shift_src << src1_i[10:6];
+        end
+        SM:begin //?
+            ALU_control = 4'b1000;
+            result_o=result_out;
         end
 
         default: begin
