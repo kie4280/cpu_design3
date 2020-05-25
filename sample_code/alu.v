@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+ `timescale 1ns/1ps
 //Author:張宸愷 0710018 何權祐 0710012
 
 module alu(
@@ -148,10 +148,27 @@ always @(*) begin
                         (src1[31] == 1 && src2[31] == 0)};
                     end
                     3'b001: begin // SGT
-                        result_reg = {31'b0, 1'b0};
+                    if(src1[31]^src2[31] == 1) begin
+                        if(src1[31]==0) result_reg = {31'b0, 1'b1};
+                        else result_reg = {31'b0, 1'b0};
+
+                    end else begin 
+                        result_reg = {31'b0, (~result_wire[31]) & (|result_wire[30:0])};
+
+                    end
+
+
+                        
                     end
                     3'b010: begin // SLE
-                        result_reg = {31'b0, 1'b0};
+                        if(src1[31]^src2[31] == 1) begin
+                            if(src1[31]==1) result_reg = {31'b0, 1'b1};
+                            else result_reg = {31'b0, 1'b0};
+
+                        end else begin 
+                            result_reg = {31'b0, result_wire[31]};
+
+                        end
                     end
                     3'b011: begin // SGE
                         result_reg = {31'b0, 1'b0};

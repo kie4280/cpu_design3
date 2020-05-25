@@ -15,14 +15,11 @@ input  [32-1:0]	 src2_i;
 input  [4-1:0]   ctrl_i;
 input rst_n;
 
-output [32-1:0]	 result_o;
+output reg[32-1:0]	 result_o;
 output           zero_o;
 
 //Internal signals
 
-wire          zero_o;
-
-reg [32-1:0]  result_o;
 wire          cout_out;
 wire          overflow_out;
 reg [3-1:0]   comp;
@@ -51,13 +48,15 @@ alu alu(
 
 
 //actual ALU control code
-localparam [4-1:0] AND=0, OR=1, NAND=2, NOR=3, ADDU=4, SUBU=5, SLT=6, EQUAL=7,
-                   SRA=8, SRAV=9, LUI=10, SLTU=11, SLL=12, SM=13;
+localparam [4-1:0] AND=0, OR=1, LW=2, SW=3, ADDU=4, SUBU=5, SLT=6, BLEZ=7,
+                   SRA=8, SRAV=9, LUI=10, SLTU=11, SLL=12, SMUL=13, BGTZ=14;
 
 always@(*) begin
 
     if(ctrl_i == SLT) comp = 3'b000;
-    else comp = 3'b101; 
+    else if(ctrl_i == SLTU) comp = 3'b101; 
+    else if(ctrl_i == BLEZ) comp = 3'b010;
+    else if(ctrl_i == BGTZ) comp = 3'b001;
 
     case(ctrl_i) 
         AND: begin
@@ -98,9 +97,25 @@ always@(*) begin
         SLL: begin
             result_o = shift_src << src1_i[10:6];
         end
-        SM:begin //?
+        SMUL:begin //?
             ALU_Ctrl = 4'b1000;
-            result_o=result_out;
+            result_o = result_out;
+        end
+        LW:begin //?
+            ALU_Ctrl = 4'b1000;
+            result_o = result_out;
+        end
+        SW:begin //?
+            ALU_Ctrl = 4'b1000;
+            result_o = result_out;
+        end
+        BLEZ:begin //?
+            ALU_Ctrl = 4'b0111;
+            result_o = result_out;
+        end
+        BGTZ:begin //?
+            ALU_Ctrl = 4'b0111;
+            result_o = result_out;
         end
 
         default: begin

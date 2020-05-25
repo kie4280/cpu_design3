@@ -13,13 +13,15 @@ wire [32-1:0] instruction;
 wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4,
               ProgramCounter_b, ProgramCounter_w, ProgramCounter_4w,
               ProgramCounter_nj, ProgramCounter_j, ProgramCounter_fj, jal_addr;
-wire [32-1:0] RSdata, RTdata, RDdata, Mux_Alu_src2, Mux_Alu_src1;
+wire [32-1:0] RSdata, RTdata, RDdata, ALU_Result, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
 wire reg_write, reg_dst, alu_src1, alu_src2, branch, branch_eq, jump;
 wire[4-1:0] alu_op;
 wire sign, zero;
 wire [4-1:0] alu_ctrl;
-wire [64-1:0] src64;
+
+wire [32-1:0] DM_ADDR, DM_DATA_IN, DM_DATA_OUT;
+wire MEMREAD, MEMWRITE;
 
 
 ProgramCounter PC(
@@ -106,7 +108,7 @@ ALU ALU(
     .src1_i(Mux_Alu_src1),//
     .src2_i(Mux_Alu_src2),//
     .ctrl_i(alu_ctrl),//
-    .result_o(RDdata),//
+    .result_o(ALU_Result),//
     .zero_o(zero)//
     );
 
@@ -148,5 +150,21 @@ MUX_2to1 #(.size(32)) Mux_PC_Source(
     .select_i(jump||jump_R),//
     .data_o(ProgramCounter_i)//
     );
+
+MUX_2to1 #(.size(32)) Mux_Result_Dst(
+    .data0_i(ALU_Result),//
+    .data1_i(DM_DATA_OUT),//
+    .select_i(MEMREAD),//
+    .data_o(RDdata)
+    );
+
+Data_Memory DM(
+    .clk_i(clk_i),
+    .addr_i(DM_ADDR),
+    .data_i(DM_DATA_IN),
+    .data_o(DM_DATA_OUT),
+    .MemRead_i(MEMREAD),
+    .MemWrite_i(MEMWRITE)
+);
 
 endmodule
