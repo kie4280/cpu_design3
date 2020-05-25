@@ -99,7 +99,7 @@ always@(*) begin
             result_o = shift_src << src1_i[10:6];
         end
         SM:begin //?
-            ALU_control = 4'b1000;
+            ALU_Ctrl = 4'b1000;
             result_o=result_out;
         end
 

@@ -12,7 +12,7 @@ input rst_i;
 wire [32-1:0] instruction;
 wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4,
               ProgramCounter_b, ProgramCounter_w, ProgramCounter_4w,
-              ProgramCounter_nj, ProgramCounter_j;
+              ProgramCounter_nj, ProgramCounter_j, ProgramCounter_fj, jal_addr;
 wire [32-1:0] RSdata, RTdata, RDdata, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
 wire reg_write, reg_dst, alu_src1, alu_src2, branch, branch_eq, jump;
@@ -128,14 +128,14 @@ MUX_2to1 #(.size(32)) Mux_BranchOrNot(
     .data_o(ProgramCounter_nj)//no jump
     );
 
-MUX_2to1 #(.size(32)) Mux_JorJAL(
-    .data0_i({ProgramCounter_o+[31:28],5{0},instruction[20:0],2{0}}),//
-    .data1_i(jal),//
+MUX_2to1 #(.size(32)) Mux_JAL(
+    .data0_i({ProgramCounter_o[31:28], instruction[25:0],2'b00}),//
+    .data1_i(jal_addr),//
     .select_i(jump_ctrl),//
     .data_o(ProgramCounter_j)//jump
     );
 
-MUX_2to1 #(.size(32)) Mux_JorJAL(
+MUX_2to1 #(.size(32)) Mux_JR(
     .data0_i(RSdata),//
     .data1_i(ProgramCounter_j),//R type jump
     .select_i(jump),//
