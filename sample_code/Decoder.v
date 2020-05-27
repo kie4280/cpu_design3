@@ -130,21 +130,10 @@ always@(*) begin
             6'b000101: begin
                 ALU_op_o = JAL;
                 ALUSrc_o = 0;
-                RegWrite_o = 0;
+                RegWrite_o = 1;
                 Jump_Ctrl = 1;
             end
-            6'b000101: begin
-                ALU_op_o = JAL;
-                ALUSrc_o = 0;
-                RegWrite_o = 0;
-                Jump_Ctrl = 1;
-            end
-            6'b000101: begin
-                ALU_op_o = JAL;
-                ALUSrc_o = 0;
-                RegWrite_o = 0;
-                Jump_Ctrl = 1;
-            end
+            
 
             default: ;
         endcase

@@ -129,32 +129,12 @@ Shift_Left_Two_32 Shifter(
     .data_o(ProgramCounter_w)//
     );
 
-MUX_2to1 #(.size(32)) Mux_BranchOrNot(
-    .data0_i(ProgramCounter_4),//
-    .data1_i(ProgramCounter_4w),//
-    .select_i((branch_eq?zero:~zero)&branch),//
-    .data_o(ProgramCounter_nj)//no jump
-    );
-
-MUX_2to1 #(.size(32)) Mux_JAL(
-    .data0_i({ProgramCounter_o[31:28], instruction[25:0],2'b00}),//
-    .data1_i(jal_addr),//
-    .select_i(jump_ctrl),//
-    .data_o(ProgramCounter_j)//jump
-    );
-
-MUX_2to1 #(.size(32)) Mux_JR(
-    .data0_i(RSdata),//
-    .data1_i(ProgramCounter_j),//R type jump
-    .select_i(jump),//
-    .data_o(ProgramCounter_fj)//final jump
-    );
-
-MUX_2to1 #(.size(32)) Mux_PC_Source(
-    .data0_i(ProgramCounter_nj),//
-    .data1_i(ProgramCounter_fj),//
-    .select_i(jump||jump_R),//
-    .data_o(ProgramCounter_i)//
+MUX_3to1 #(.size(32)) MUX_next_PC(
+    .data0_i(ProgramCounter_4),
+    .data1_i(),
+    .data2_i(),
+    .select_i(),
+    .data_o(ProgramCounter_i)
     );
 
 MUX_2to1 #(.size(32)) Mux_Result_Dst(
