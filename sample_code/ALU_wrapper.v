@@ -97,23 +97,23 @@ always@(*) begin
         SLL: begin
             result_o = shift_src << src1_i[10:6];
         end
-        SMUL:begin //?
+        SMUL: begin 
+            ALU_Ctrl = 4'b0000;
+            result_o = src1_i * src2_i;
+        end
+        LW: begin 
             ALU_Ctrl = 4'b1000;
             result_o = result_out;
         end
-        LW:begin //?
+        SW: begin 
             ALU_Ctrl = 4'b1000;
             result_o = result_out;
         end
-        SW:begin //?
-            ALU_Ctrl = 4'b1000;
-            result_o = result_out;
-        end
-        BLEZ:begin //?
+        BLEZ: begin 
             ALU_Ctrl = 4'b0111;
             result_o = result_out;
         end
-        BGTZ:begin //?
+        BGTZ: begin 
             ALU_Ctrl = 4'b0111;
             result_o = result_out;
         end

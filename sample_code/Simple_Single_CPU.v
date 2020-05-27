@@ -15,13 +15,16 @@ wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4,
               ProgramCounter_nj, ProgramCounter_j, ProgramCounter_fj, jal_addr;
 wire [32-1:0] RSdata, RTdata, RDdata, ALU_Result, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
-wire reg_write, reg_dst, alu_src1, alu_src2, branch, branch_eq, jump;
+wire reg_write, reg_dst, branch, branch_eq, jump;
+wire [2-1:0] alu_src1, alu_src2;
 wire[4-1:0] alu_op;
 wire sign, zero;
 wire [4-1:0] alu_ctrl;
 
 wire [32-1:0] DM_ADDR, DM_DATA_IN, DM_DATA_OUT;
 wire MEMREAD, MEMWRITE;
+
+assign DM_ADDR = ALU_Result;
 
 
 ProgramCounter PC(
@@ -65,6 +68,8 @@ Decoder Decoder(
     .rst_n(rst_i),
     .instr_op_i(instruction[31:26]),
     .RegWrite_o(reg_write),
+    .memread_o(MEMREAD),
+    .memwrite_o(MEMWRITE),
     .ALU_op_o(alu_op),
     .ALUSrc_o(alu_src2),
     .RegDst_o(reg_dst),
@@ -91,13 +96,14 @@ Sign_Extend SE(
 
 MUX_2to1 #(.size(32)) Mux_ALUSrc1(
     .data0_i(RSdata),//
-    .data1_i(ProgramCounter_b),//
+    .data1_i(ProgramCounter_b),//    
     .select_i(alu_src1),//
     .data_o(Mux_Alu_src1)
     );
-MUX_2to1 #(.size(32)) Mux_ALUSrc2(
+MUX_3to1 #(.size(32)) Mux_ALUSrc2(
     .data0_i(RTdata),//
     .data1_i(ProgramCounter_b),//
+    .data2_i(32'b0),
     .select_i(alu_src2),//
     .data_o(Mux_Alu_src2)
     );

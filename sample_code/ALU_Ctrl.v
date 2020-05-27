@@ -18,22 +18,32 @@ output     [4-1:0] ALUCtrl_o;
 //Internal Signals
 reg        [4-1:0] ALUCtrl_o;
 output reg Sign_extend_o;
-output reg  Mux_ALU_src1;
-output reg  Jump_R;
+output reg [2-1:0] Mux_ALU_src1;
+output reg Jump_R;
 
 //Select exact operation
 
 //actual ALU control code
-localparam [4-1:0] A_AND=0, A_OR=1, A_NAND=2, A_NOR=3, A_ADDU=4, A_SUBU=5, A_SLT=6, A_EQUAL=7,
-                   A_SRA=8, A_SRAV=9, A_LUI=10, A_SLTU=11, A_JRS=12;
+localparam [4-1:0] A_AND=0, A_OR=1, A_LW=2, A_SW=3, A_ADDU=4, A_SUBU=5, A_SLT=6, A_BLEZ=7,
+                   A_SRA=8, A_SRAV=9, A_LUI=10, A_SLTU=11, A_SLL=12, A_SMUL=13, A_BGTZ=14;
 
 //ALUOP from decoder
-localparam[4-1:0] R_TYPE=0, ADDI=1, SLTIU=2, BEQ=3, LUI=4, ORI=5, BNE=6;
+localparam[4-1:0] R_TYPE=0, ADDI=1, SLTIU=2, 
+                  BEQ=3, LUI=4, ORI=5, BNE=6,
+                  LW=7, SW=8, BLEZ=9, BGTZ=10,
+                  JRS=11, J=12, JAL=13;
 
 //begin logic
-always@(*) begin    
+always@(*) begin  
 
-    Mux_ALU_src1 = (funct_i == 6'b000011 && ALUOp_i == R_TYPE);
+    if(ALUOp_i == R_TYPE && (funct_i == 6'b000011 || funct_i == 6'b000000)) begin
+        Mux_ALU_src1 = 1;
+    end
+    else begin
+        Mux_ALU_src1 = 0;
+    end
+
+    
 
     if(ALUOp_i == R_TYPE) begin
         case(funct_i) 
@@ -65,10 +75,20 @@ always@(*) begin
                 ALUCtrl_o = A_SRAV;
                 Jump_R=0;
             end
-            6'b001000: begin //shift right variable
+            6'b001000: begin //jump register
                 ALUCtrl_o = A_JRS;
                 Jump_R=1;
             end
+            6'b000000: begin //shift left logical
+                ALUCtrl_o = A_SLL;
+                Jump_R=0;
+            end
+            6'b011000: begin //signed multiplication
+                ALUCtrl_o = A_SMUL;
+                Jump_R=0;
+            end
+
+            default:;
 
 
         endcase
@@ -105,6 +125,36 @@ always@(*) begin
     else if(ALUOp_i == BNE)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_SUBU;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == LW)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_LW;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == SW)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_SW;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == JRS)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_SUBU;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == J)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_JRS;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == BLE)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_BLEZ;
+        Jump_R=0;
+    end
+    else if(ALUOp_i == BGT)begin
+        Sign_extend_o = 1;
+        ALUCtrl_o = A_BGTZ;
         Jump_R=0;
     end
 
