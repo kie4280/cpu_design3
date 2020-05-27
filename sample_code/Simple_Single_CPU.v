@@ -164,7 +164,7 @@ MUX_2to1 #(.size(32)) Mux_Result_Dst(
     .data_o(RDdata)
     );
 
-Data_Memory DM(
+Data_Memory Data_Memory(
     .clk_i(clk_i),
     .addr_i(DM_ADDR),
     .data_i(DM_DATA_IN),

@@ -27,8 +27,8 @@ output reg        Branch_o = 0;
 output reg        Branch_eq = 0;
 output reg        Jump = 0;
 output reg[1:0]   Jump_Ctrl = 0;
-output reg        Memread_o = 0;
-output reg        Memwrite_o = 0;
+output reg        memread_o = 0;
+output reg        memwrite_o = 0;
 
 //ALUOP for decoder
 localparam[4-1:0] R_TYPE=0, ADDI=1, SLTIU=2, 

@@ -97,6 +97,7 @@ always@(*) begin
         SLL: begin
             result_o = shift_src << src1_i[10:6];
         end
+        
         SMUL: begin 
             ALU_Ctrl = 4'b0000;
             result_o = src1_i * src2_i;

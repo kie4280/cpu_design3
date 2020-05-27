@@ -76,7 +76,7 @@ always@(*) begin
                 Jump_R=0;
             end
             6'b001000: begin //jump register
-                ALUCtrl_o = A_JRS;
+                
                 Jump_R=1;
             end
             6'b000000: begin //shift left logical
@@ -139,20 +139,20 @@ always@(*) begin
     end
     else if(ALUOp_i == JRS)begin
         Sign_extend_o = 1;
-        ALUCtrl_o = A_SUBU;
+        
         Jump_R=0;
     end
     else if(ALUOp_i == J)begin
         Sign_extend_o = 1;
-        ALUCtrl_o = A_JRS;
+        
         Jump_R=0;
     end
-    else if(ALUOp_i == BLE)begin
+    else if(ALUOp_i == BLEZ)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_BLEZ;
         Jump_R=0;
     end
-    else if(ALUOp_i == BGT)begin
+    else if(ALUOp_i == BGTZ)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_BGTZ;
         Jump_R=0;
