@@ -11,8 +11,7 @@ input rst_i;
 
 wire [32-1:0] instruction;
 wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4,
-              ProgramCounter_b, ProgramCounter_w, ProgramCounter_4w,
-              ProgramCounter_nj, ProgramCounter_j, ProgramCounter_fj, jal_addr;
+              ProgramCounter_w, ProgramCounter_b, ProgramCounter_j, ProgramCounter_bran;
 wire [32-1:0] RSdata, RTdata, RDdata, ALU_Result, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
 wire reg_write, reg_dst, branch, branch_eq, jump;
@@ -91,18 +90,18 @@ ALU_Ctrl AC(
 Sign_Extend SE(
     .data_i(instruction[15:0]),//
     .sign_i(sign),//
-    .data_o(ProgramCounter_b)//
+    .data_o(ProgramCounter_w)//
     );
 
 MUX_2to1 #(.size(32)) Mux_ALUSrc1(
     .data0_i(RSdata),//
-    .data1_i(ProgramCounter_b),//    
+    .data1_i(ProgramCounter_w),//    
     .select_i(alu_src1),//
     .data_o(Mux_Alu_src1)
     );
 MUX_3to1 #(.size(32)) Mux_ALUSrc2(
     .data0_i(RTdata),//
-    .data1_i(ProgramCounter_b),//
+    .data1_i(ProgramCounter_w),//
     .data2_i(32'b0),
     .select_i(alu_src2),//
     .data_o(Mux_Alu_src2)
@@ -119,20 +118,20 @@ ALU ALU(
     );
 
 Adder Adder2(
-    .src1_i(ProgramCounter_w),//
+    .src1_i(ProgramCounter_b),//
     .src2_i(ProgramCounter_4),//
-    .sum_o(ProgramCounter_4w)//
+    .sum_o(ProgramCounter_bran)//
     );
 
 Shift_Left_Two_32 Shifter(
-    .data_i(ProgramCounter_b),//
-    .data_o(ProgramCounter_w)//
+    .data_i(ProgramCounter_w),//
+    .data_o(ProgramCounter_b)//
     );
 
 MUX_3to1 #(.size(32)) MUX_next_PC(
     .data0_i(ProgramCounter_4),
-    .data1_i(),
-    .data2_i(),
+    .data1_i(ProgramCounter_bran),
+    .data2_i(ProgramCounter_j),
     .select_i(),
     .data_o(ProgramCounter_i)
     );
