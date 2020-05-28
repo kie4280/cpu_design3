@@ -82,6 +82,7 @@ Decoder Decoder(
     );
 
 ALU_Ctrl AC(
+    .rst_n(rst_i),
     .funct_i(instruction[5:0]),//
     .ALUOp_i(alu_op),//
     .ALUCtrl_o(alu_ctrl),//
