@@ -10,7 +10,7 @@ input clk_i;
 input rst_i;
 
 wire [32-1:0] instruction;
-wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4, ProgramCounter_j_jal
+wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4, ProgramCounter_j_jal,
               ProgramCounter_w, ProgramCounter_b, ProgramCounter_j, ProgramCounter_bran, ProgramCounter_jr;
 wire [32-1:0] RSdata, RTdata, RDdata, ALU_Result, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
@@ -19,13 +19,13 @@ wire [2-1:0] alu_src1, alu_src2;
 wire[4-1:0] alu_op;
 wire sign, zero;
 wire [4-1:0] alu_ctrl;
-
+wire [2-1:0] PC_select;
 wire [32-1:0] DM_ADDR, DM_DATA_IN, DM_DATA_OUT;
 wire MEMREAD, MEMWRITE;
 
 assign DM_ADDR = ALU_Result;
 assign ProgramCounter_jr = RSdata;
-assign ProgramCounter_j_jal = {ProgramCounter_0[31:28], instruction[25:0], 2'b0};
+assign ProgramCounter_j_jal = {ProgramCounter_o[31:28], instruction[25:0], 2'b0};
 
 
 ProgramCounter PC(
@@ -75,9 +75,7 @@ Decoder Decoder(
     .ALUSrc_o(alu_src2),
     .RegDst_o(reg_dst),
     .Branch_o(branch),
-    .Branch_eq(branch_eq),
-    .Jump(jump),
-    .Jump_Ctrl(jump_ctrl)
+    .Branch_eq(branch_eq)
     );
 
 ALU_Ctrl AC(
@@ -85,8 +83,7 @@ ALU_Ctrl AC(
     .ALUOp_i(alu_op),//
     .ALUCtrl_o(alu_ctrl),//
     .Sign_extend_o(sign),
-    .Mux_ALU_src1(alu_src1),
-    .Jump_R(jump_R)
+    .Mux_ALU_src1(alu_src1)
     );
 
 Sign_Extend SE(
@@ -133,7 +130,7 @@ Shift_Left_Two_32 Shifter(
 MUX_2to1 #(.size(32)) MUX_Which_Jump(
     .data0_i(ProgramCounter_j_jal),//
     .data1_i(ProgramCounter_jr),//
-    .select_i(instruction[31:26]==001000),//
+    .select_i(instruction[31:26] == 6'b001000),//
     .data_o(ProgramCounter_j)
     );
 
@@ -141,7 +138,7 @@ MUX_3to1 #(.size(32)) MUX_next_PC(
     .data0_i(ProgramCounter_4),
     .data1_i(ProgramCounter_bran),
     .data2_i(ProgramCounter_j),
-    .select_i(),
+    .select_i(PC_select),
     .data_o(ProgramCounter_i)
     );
 
@@ -159,6 +156,14 @@ Data_Memory Data_Memory(
     .data_o(DM_DATA_OUT),
     .MemRead_i(MEMREAD),
     .MemWrite_i(MEMWRITE)
+);
+
+PC_selector pc_ss(
+    .opcode(instruction[31:26]),
+    .funct_i(instruction[5:0]),
+    .alu_zero(zero),
+    .PC_select(PC_select)
+
 );
 
 endmodule

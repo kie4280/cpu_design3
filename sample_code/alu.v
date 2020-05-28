@@ -156,8 +156,6 @@ always @(*) begin
                         result_reg = {31'b0, (~result_wire[31]) & (|result_wire[30:0])};
 
                     end
-
-
                         
                     end
                     3'b010: begin // SLE

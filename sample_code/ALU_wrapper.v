@@ -16,7 +16,7 @@ input  [4-1:0]   ctrl_i;
 input rst_n;
 
 output reg[32-1:0]	 result_o;
-output           zero_o;
+output reg           zero_o;
 
 //Internal signals
 
@@ -26,6 +26,7 @@ reg [3-1:0]   comp;
 reg [4-1:0]   ALU_Ctrl;
 wire [32-1:0] result_out;
 wire [64-1:0] shift_src;
+wire zero_unused;
 
 
 Sign_Extend2 e2(
@@ -40,7 +41,7 @@ alu alu(
 	.ALU_control(ALU_Ctrl),
 	.comp(comp),
 	.result(result_out),
-	.zero(zero_o),
+	.zero(zero_unused),
 	.cout(cout_out),
 	.overflow(overflow_out)
 );
@@ -57,6 +58,7 @@ always@(*) begin
     else if(ctrl_i == SLTU) comp = 3'b101; 
     else if(ctrl_i == BLEZ) comp = 3'b010;
     else if(ctrl_i == BGTZ) comp = 3'b001;
+    zero_o = ~(|result_o);
 
     case(ctrl_i) 
         AND: begin

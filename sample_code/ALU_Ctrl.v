@@ -6,7 +6,7 @@ module ALU_Ctrl(
         ALUCtrl_o,
         Sign_extend_o,
         Mux_ALU_src1,
-        Jump_R
+        
         );
 
 //I/O ports
@@ -19,7 +19,7 @@ output     [4-1:0] ALUCtrl_o;
 reg        [4-1:0] ALUCtrl_o;
 output reg Sign_extend_o;
 output reg [2-1:0] Mux_ALU_src1;
-output reg Jump_R;
+
 
 //Select exact operation
 
@@ -49,43 +49,43 @@ always@(*) begin
         case(funct_i) 
             6'b100001: begin //add unsigned
                 ALUCtrl_o = A_ADDU;
-                Jump_R=0;
+              
             end
             6'b100011: begin //sub unsigned
                 ALUCtrl_o = A_SUBU;
-                Jump_R=0;
+              
             end
             6'b100100: begin //bitwise and
                 ALUCtrl_o = A_AND;
-                Jump_R=0;
+              
             end
             6'b100101: begin //bitwise or
                 ALUCtrl_o = A_OR;
-                Jump_R=0;
+              
             end
             6'b101010: begin //slt
                 ALUCtrl_o = A_SLT;
-                Jump_R=0;
+              
             end
             6'b000011: begin // shift right constant
                 ALUCtrl_o = A_SRA;
-                Jump_R=0;
+              
             end
             6'b000111: begin //shift right variable
                 ALUCtrl_o = A_SRAV;
-                Jump_R=0;
+              
             end
             6'b001000: begin //jump register
                 
-                Jump_R=1;
+              
             end
             6'b000000: begin //shift left logical
                 ALUCtrl_o = A_SLL;
-                Jump_R=0;
+              
             end
             6'b011000: begin //signed multiplication
                 ALUCtrl_o = A_SMUL;
-                Jump_R=0;
+              
             end
 
             default:;
@@ -98,64 +98,64 @@ always@(*) begin
     else if(ALUOp_i == ADDI) begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_ADDU;
-        Jump_R=0;
+      
 
     end
     else if(ALUOp_i == SLTIU) begin
         Sign_extend_o = 0;
         ALUCtrl_o = A_SLTU;
-        Jump_R=0;
+      
 
     end
     else if(ALUOp_i == BEQ)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_SUBU;
-        Jump_R=0;
+      
     end
     else if (ALUOp_i == LUI) begin
         Sign_extend_o = 0;
         ALUCtrl_o = A_LUI;
-        Jump_R=0;
+      
     end
     else if (ALUOp_i == ORI) begin
         Sign_extend_o = 0;
         ALUCtrl_o = A_OR;
-        Jump_R=0;
+      
     end 
     else if(ALUOp_i == BNE)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_SUBU;
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == LW)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_LW;
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == SW)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_SW;
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == JRS)begin
-        Sign_extend_o = 1;
+        Sign_extend_o = 0;
         
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == J)begin
-        Sign_extend_o = 1;
+        Sign_extend_o = 0;
         
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == BLEZ)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_BLEZ;
-        Jump_R=0;
+      
     end
     else if(ALUOp_i == BGTZ)begin
         Sign_extend_o = 1;
         ALUCtrl_o = A_BGTZ;
-        Jump_R=0;
+      
     end
 
     else begin

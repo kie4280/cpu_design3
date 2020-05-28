@@ -10,9 +10,7 @@ module Decoder(
     ALUSrc_o,
     RegDst_o,
     Branch_o,
-    Branch_eq,
-    Jump,
-    Jump_Ctrl
+    Branch_eq
     );
 
 //I/O ports
@@ -25,8 +23,7 @@ output reg[2-1:0] ALUSrc_o = 0;
 output reg        RegDst_o = 0;
 output reg        Branch_o = 0;
 output reg        Branch_eq = 0;
-output reg        Jump = 0;
-output reg[1:0]   Jump_Ctrl = 0;
+
 output reg        memread_o = 0;
 output reg        memwrite_o = 0;
 
@@ -44,8 +41,7 @@ always@(*) begin
     if(rst_n) begin
         RegDst_o = (instr_op_i == 6'b000000);
         Branch_o = (instr_op_i == 6'b000100 || instr_op_i == 6'b000101);
-        Branch_eq = (instr_op_i == 6'b000100);
-        Jump = (instr_op_i == 6'b000010)||(instr_op_i == 6'b000011);//JUMP case都沒打
+        Branch_eq = (instr_op_i == 6'b000100);        
         memread_o = (instr_op_i == 6'b100011);
         memwrite_o = (instr_op_i == 6'b101011);
         case (instr_op_i)
@@ -53,89 +49,89 @@ always@(*) begin
                 ALU_op_o = R_TYPE;
                 ALUSrc_o = 0;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
             6'b001000: begin
                 ALU_op_o = ADDI;
                 ALUSrc_o = 1;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
             6'b001011: begin
                 ALU_op_o = SLTIU;
                 ALUSrc_o = 1;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
             6'b000100: begin
                 ALU_op_o = BEQ;
                 ALUSrc_o = 0;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
+                
             end
             6'b001111: begin
                 ALU_op_o = LUI;
                 ALUSrc_o = 1;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
             6'b001101: begin
                 ALU_op_o = ORI;
                 ALUSrc_o = 1;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
             6'b000101: begin
                 ALU_op_o = BNE;
                 ALUSrc_o = 0;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
+                
             end
-            6'b000101: begin
+            6'b100011: begin
                 ALU_op_o = LW;
                 ALUSrc_o = 1;
                 RegWrite_o = 1;
-                Jump_Ctrl = 0;
+                
             end
-            6'b000101: begin
+            6'b101011: begin
                 ALU_op_o = SW;
                 ALUSrc_o = 1;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
+                
             end
             6'b000101: begin
                 ALU_op_o = BLEZ;
                 ALUSrc_o = 2;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
+                
             end
             6'b000101: begin
                 ALU_op_o = BGTZ;
                 ALUSrc_o = 2;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
-            /*end
+                
+            end
             6'b000101: begin
                 ALU_op_o = JRS;
                 ALUSrc_o = 0;
                 RegWrite_o = 0;
-                Jump_Ctrl = 1;
-            */end
+                
+            end
             6'b000101: begin
                 ALU_op_o = J;
                 ALUSrc_o = 0;
                 RegWrite_o = 0;
-                Jump_Ctrl = 0;
+                
             end
             6'b000101: begin
                 ALU_op_o = JAL;
                 ALUSrc_o = 0;
-                RegWrite_o = 1;
-                Jump_Ctrl = 1;
+                RegWrite_o = 0;
+                
             end
             
 
-            default: ;
+            default:;                                             
         endcase
     
 
