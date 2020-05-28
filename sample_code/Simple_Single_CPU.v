@@ -14,8 +14,9 @@ wire [32-1:0] ProgramCounter_i, ProgramCounter_o, ProgramCounter_4, ProgramCount
               ProgramCounter_w, ProgramCounter_b, ProgramCounter_j, ProgramCounter_bran, ProgramCounter_jr;
 wire [32-1:0] RSdata, RTdata, RDdata, ALU_Result, Mux_Alu_src2, Mux_Alu_src1;
 wire [5-1:0]  RD_addr;
-wire reg_write, reg_dst, branch, branch_eq, jump;
-wire [2-1:0] alu_src1, alu_src2;
+wire reg_write, branch, branch_eq, jump, alu_src1;
+wire [2-1:0] reg_dst, reg_data_select;
+wire [2-1:0] alu_src2;
 wire[4-1:0] alu_op;
 wire sign, zero;
 wire [4-1:0] alu_ctrl;
@@ -26,7 +27,7 @@ wire MEMREAD, MEMWRITE;
 assign DM_ADDR = ALU_Result;
 assign ProgramCounter_jr = RSdata;
 assign ProgramCounter_j_jal = {ProgramCounter_o[31:28], instruction[25:0], 2'b0};
-
+assign DM_DATA_IN = RTdata;
 
 ProgramCounter PC(
     .clk_i(clk_i),
@@ -46,12 +47,14 @@ Instr_Memory IM(
     .instr_o(instruction)
     );
 
-MUX_2to1 #(.size(5)) Mux_Write_Reg(
+MUX_3to1 #(.size(5)) Mux_Write_Reg(
     .data0_i(instruction[20:16]),
     .data1_i(instruction[15:11]),
+    .data2_i(5'd31),
     .select_i(reg_dst),//
     .data_o(RD_addr)  //
     );
+
 
 Reg_File RF(
     .clk_i(clk_i),
@@ -60,22 +63,22 @@ Reg_File RF(
     .RTaddr_i(instruction[20:16]) ,
     .RDaddr_i(RD_addr) ,
     .RDdata_i(RDdata) ,//
-    .RegWrite_i (reg_write),//
+    .RegWrite_i(reg_write),//
     .RSdata_o(RSdata) ,//
     .RTdata_o(RTdata)//
     );
 
 Decoder Decoder(
     .rst_n(rst_i),
-    .instr_op_i(instruction[31:26]),
-    .RegWrite_o(reg_write),
+    .instr_op_i(instruction[31:26]),    
     .memread_o(MEMREAD),
     .memwrite_o(MEMWRITE),
     .ALU_op_o(alu_op),
     .ALUSrc_o(alu_src2),
     .RegDst_o(reg_dst),
     .Branch_o(branch),
-    .Branch_eq(branch_eq)
+    .Branch_eq(branch_eq),
+    .reg_data_select(reg_data_select)
     );
 
 ALU_Ctrl AC(
@@ -83,7 +86,8 @@ ALU_Ctrl AC(
     .ALUOp_i(alu_op),//
     .ALUCtrl_o(alu_ctrl),//
     .Sign_extend_o(sign),
-    .Mux_ALU_src1(alu_src1)
+    .Mux_ALU_src1(alu_src1),
+    .RegWrite_o(reg_write)
     );
 
 Sign_Extend SE(
@@ -130,7 +134,7 @@ Shift_Left_Two_32 Shifter(
 MUX_2to1 #(.size(32)) MUX_Which_Jump(
     .data0_i(ProgramCounter_j_jal),//
     .data1_i(ProgramCounter_jr),//
-    .select_i(instruction[31:26] == 6'b001000),//
+    .select_i(instruction[31:26] == 6'b000000),//
     .data_o(ProgramCounter_j)
     );
 
@@ -142,10 +146,11 @@ MUX_3to1 #(.size(32)) MUX_next_PC(
     .data_o(ProgramCounter_i)
     );
 
-MUX_2to1 #(.size(32)) Mux_Result_Dst(
+MUX_3to1 #(.size(32)) Mux_Result_Dst(
     .data0_i(ALU_Result),//
     .data1_i(DM_DATA_OUT),//
-    .select_i(MEMREAD),//
+    .data2_i(ProgramCounter_4),
+    .select_i(reg_data_select),//
     .data_o(RDdata)
     );
 

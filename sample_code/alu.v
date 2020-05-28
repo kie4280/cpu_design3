@@ -163,7 +163,11 @@ always @(*) begin
                             if(src1[31]==1) result_reg = {31'b0, 1'b1};
                             else result_reg = {31'b0, 1'b0};
 
-                        end else begin 
+                        end 
+                        else if(src1==src2) begin
+                            result_reg = {31'b0, 1'b1};
+                        end
+                        else begin 
                             result_reg = {31'b0, result_wire[31]};
 
                         end

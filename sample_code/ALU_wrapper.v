@@ -58,7 +58,7 @@ always@(*) begin
     else if(ctrl_i == SLTU) comp = 3'b101; 
     else if(ctrl_i == BLEZ) comp = 3'b010;
     else if(ctrl_i == BGTZ) comp = 3'b001;
-    zero_o = ~(|result_o);
+    
 
     case(ctrl_i) 
         AND: begin
@@ -105,11 +105,11 @@ always@(*) begin
             result_o = src1_i * src2_i;
         end
         LW: begin 
-            ALU_Ctrl = 4'b1000;
+            ALU_Ctrl = 4'b0010;
             result_o = result_out;
         end
         SW: begin 
-            ALU_Ctrl = 4'b1000;
+            ALU_Ctrl = 4'b0010;
             result_o = result_out;
         end
         BLEZ: begin 
@@ -127,6 +127,8 @@ always@(*) begin
         end
 
     endcase
+
+    zero_o = ~(|result_o);
 
 
 end
